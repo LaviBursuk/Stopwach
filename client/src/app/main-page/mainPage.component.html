@@ -1,0 +1,16 @@
+<div class="container">
+  <div class="timerLabel">{{displayTime}}</div>
+  <div class="timerButtons">
+    <button class="timerButton leftButton" (click)="startTimer()"><i [ngClass]="{'fa fa-pause': isRunning, 'fas fa-play': !isRunning}"></i> {{ playButtonText }} </button>
+    <button class="timerButton middleButton" (click)="saveTime()"><i class="fas fa-stopwatch"></i></button>
+    <button class="timerButton rightButton" (click)="resetTimer()"><i class="fas fa-trash-alt"></i></button>
+  </div>
+  <div class="timeList">
+    <ul>
+      <li *ngFor="let time of allTimes">
+        {{time.value}}
+        <button class="removeTimeButton" (click)="removeTime(time.id)">REMOVE</button>
+      </li>
+    </ul>
+  </div>
+</div>

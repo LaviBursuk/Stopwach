@@ -1,0 +1,102 @@
+@font-face{
+ font-family:'digital-clock-font';
+ src: url('../../digital-7.ttf');
+}
+
+ul{
+    list-style-type: none;
+    padding: 0;
+}
+
+li{
+    border-bottom: 2px outset #b7b7b7;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+    font-size: 1.5em;
+    font-family: 'digital-clock-font';
+}
+
+.removeTimeButton{
+    float: right;
+    background: #ff4949;
+    color: white;
+    border-style: none;
+    cursor: pointer;
+}
+
+.removeTimeButton{
+    outline: none;   
+}
+
+.timeList{
+    width: 300px;
+}
+
+.container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #ffff;
+    border-radius:15px 15px 0px 0px;
+    margin-top: 10px;
+}
+
+.timerButtons{
+    display: flex;
+}
+
+.timerButton{
+    border: 1px outset #ccc;
+    background: #fff;
+    font-size: 1em;
+    padding: 10px;
+    min-width: 150px;
+    cursor: pointer;  
+}
+
+.timerButton:focus{
+    outline: none;
+}
+
+.middleButton{
+    border-radius:0px;
+    border-bottom: outset;
+    border-bottom-color: #d8d8d8;
+}
+
+.rightButton{
+    border-radius:0px 0px 15px 0px;
+    border-right: 4px outset;
+    border-right-color: #d8d8d8;
+    border-bottom: outset;
+    border-bottom-color: #e6e4e4;
+    border-bottom-right-radius: 15px;
+}
+
+.leftButton{
+    border-radius:0px 0px 0px 15px;
+    border-left: 4px outset;
+    border-left-color: #d8d8d8;
+    border-bottom: outset;
+    border-bottom-color: #e6e4e4;
+    border-bottom-left-radius: 15px;
+}
+
+
+.timerLabel{
+    align-items: center;
+    font-size: 5em;
+    min-height: 100px;
+    background-color: #202026;
+    font-family: 'digital-clock-font';
+    color: #6cff00;
+    width: 377px;
+    border: 5px groove #131315;
+    border-radius:15px 15px 0px 0px;
+    border-bottom: none;
+    display: flex;
+    padding-left: 65px;
+}
+
