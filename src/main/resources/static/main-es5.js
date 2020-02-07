@@ -51,7 +51,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
     /* harmony default export */
 
 
-    __webpack_exports__["default"] = "<div class=\"container\">\r\n  <div class=\"timerLabel\">{{displayTime}}</div>\r\n  <div class=\"timerButtons\">\r\n    <button class=\"timerButton leftButton\" (click)=\"startTimer()\"><i [ngClass]=\"{'fa fa-pause': isRunning, 'fas fa-play': !isRunning}\"></i> {{ playButtonText }} </button>\r\n    <button class=\"timerButton middleButton\" (click)=\"saveTime()\"><i class=\"fas fa-stopwatch\"></i></button>\r\n    <button class=\"timerButton rightButton\" (click)=\"resetTimer()\"><i class=\"fas fa-trash-alt\"></i></button>\r\n  </div>\r\n  <div class=\"timeList\">\r\n    <ul>\r\n      <li *ngFor=\"let time of allTimes\">\r\n        {{time.value}}\r\n        <button class=\"removeTimeButton\" (click)=\"removeTime(time.id)\">REMOVE</button>\r\n      </li>\r\n    </ul>\r\n  </div>\r\n</div>\r\n";
+    __webpack_exports__["default"] = "<div class=\"container\">\r\n  <div class=\"timerLabel\">{{displayTime}}</div>\r\n  <div class=\"timerButtons\">\r\n    <button class=\"timerButton leftButton\" (click)=\"startTimer()\"><i [ngClass]=\"{'fa fa-pause': isRunning, 'fas fa-play': !isRunning}\"></i> {{ playButtonText }} </button>\r\n    <button class=\"timerButton middleButton\" (click)=\"saveTime()\"><i class=\"fas fa-stopwatch\"></i></button>\r\n    <button class=\"timerButton rightButton\" (click)=\"resetTimer()\"><i class=\"fas fa-trash-alt\"></i></button>\r\n  </div>\r\n  <div class=\"timeList\">\r\n    <ul>\r\n      <li *ngFor=\"let time of allTimes\">\r\n        {{time.displayValue}}\r\n        <button class=\"removeTimeButton\" (click)=\"removeTime(time)\">REMOVE</button>\r\n      </li>\r\n    </ul>\r\n  </div>\r\n</div>\r\n";
     /***/
   },
 
@@ -662,11 +662,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       _createClass(StopwatchService, [{
-        key: "getSeq",
-        value: function getSeq() {
-          return this.http.get(this.baseUrl + 'Seq');
-        }
-      }, {
         key: "getAllTimes",
         value: function getAllTimes() {
           return this.http.get(this.baseUrl + 'Stopwatch');
@@ -678,8 +673,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "deleteTime",
-        value: function deleteTime(id) {
-          return this.http.delete(this.baseUrl + 'Stopwatch/' + id);
+        value: function deleteTime(time) {
+          return this.http.delete(this.baseUrl + 'Stopwatch/' + time.id);
         }
       }, {
         key: "deleteAllTimes",
@@ -967,7 +962,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             });
 
             _this.allTimes.forEach(function (element) {
-              element.value = _this.calcRealTime(element.value);
+              element.displayValue = _this.calcRealTime(element.value);
             });
           });
         }
@@ -995,13 +990,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         value: function saveTime() {
           var _this3 = this;
 
+          this.newTime = new _Models_Time__WEBPACK_IMPORTED_MODULE_3__["Time"]();
           this.newTime.value = this.counter;
-          this.service.getSeq().subscribe(function (seq) {
-            _this3.newTime.id = Number(seq);
-
-            _this3.service.addTime(_this3.newTime).subscribe(function () {
-              _this3.refreshTimes();
-            });
+          this.service.addTime(this.newTime).subscribe(function (data) {
+            _this3.updateId(data);
+          });
+          this.newTime.displayValue = this.calcRealTime(this.newTime.value);
+          this.allTimes.push({
+            "id": this.newTime.value,
+            "value": this.newTime.value,
+            "displayValue": this.newTime.displayValue
+          });
+          this.allTimes.sort(function (a, b) {
+            return a.value - b.value;
           });
         }
       }, {
@@ -1017,18 +1018,27 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         }
       }, {
         key: "removeTime",
-        value: function removeTime(id) {
-          var _this4 = this;
+        value: function removeTime(time) {
+          this.service.deleteTime(time).subscribe();
 
-          this.service.deleteTime(id).subscribe(function () {
-            _this4.refreshTimes();
+          for (var i = 0; i < this.allTimes.length; i++) {
+            if (this.allTimes[i].id === time.id) {
+              this.allTimes.splice(i, 1);
+            }
+          }
+        }
+      }, {
+        key: "updateId",
+        value: function updateId(time) {
+          this.allTimes.forEach(function (element) {
+            if (element.value === time.value) {
+              element.id = time.id;
+            }
           });
         }
       }, {
         key: "resetTimer",
         value: function resetTimer() {
-          var _this5 = this;
-
           this.isRunning = false;
           this.playButtonText = 'Play';
           this.counter = 0;
@@ -1038,9 +1048,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           this.displayTime = "00 : 00 . 00";
           this.allTimes = [];
           clearInterval(this.timerInterval);
-          this.service.deleteAllTimes().subscribe(function () {
-            _this5.refreshTimes();
-          });
+          this.service.deleteAllTimes().subscribe();
         }
       }]);
 

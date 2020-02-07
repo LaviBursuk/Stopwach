@@ -32,7 +32,7 @@ webpackEmptyAsyncContext.id = "./$$_lazy_route_resource lazy recursive";
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"container\">\r\n  <div class=\"timerLabel\">{{displayTime}}</div>\r\n  <div class=\"timerButtons\">\r\n    <button class=\"timerButton leftButton\" (click)=\"startTimer()\"><i [ngClass]=\"{'fa fa-pause': isRunning, 'fas fa-play': !isRunning}\"></i> {{ playButtonText }} </button>\r\n    <button class=\"timerButton middleButton\" (click)=\"saveTime()\"><i class=\"fas fa-stopwatch\"></i></button>\r\n    <button class=\"timerButton rightButton\" (click)=\"resetTimer()\"><i class=\"fas fa-trash-alt\"></i></button>\r\n  </div>\r\n  <div class=\"timeList\">\r\n    <ul>\r\n      <li *ngFor=\"let time of allTimes\">\r\n        {{time.value}}\r\n        <button class=\"removeTimeButton\" (click)=\"removeTime(time.id)\">REMOVE</button>\r\n      </li>\r\n    </ul>\r\n  </div>\r\n</div>\r\n");
+/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"container\">\r\n  <div class=\"timerLabel\">{{displayTime}}</div>\r\n  <div class=\"timerButtons\">\r\n    <button class=\"timerButton leftButton\" (click)=\"startTimer()\"><i [ngClass]=\"{'fa fa-pause': isRunning, 'fas fa-play': !isRunning}\"></i> {{ playButtonText }} </button>\r\n    <button class=\"timerButton middleButton\" (click)=\"saveTime()\"><i class=\"fas fa-stopwatch\"></i></button>\r\n    <button class=\"timerButton rightButton\" (click)=\"resetTimer()\"><i class=\"fas fa-trash-alt\"></i></button>\r\n  </div>\r\n  <div class=\"timeList\">\r\n    <ul>\r\n      <li *ngFor=\"let time of allTimes\">\r\n        {{time.displayValue}}\r\n        <button class=\"removeTimeButton\" (click)=\"removeTime(time)\">REMOVE</button>\r\n      </li>\r\n    </ul>\r\n  </div>\r\n</div>\r\n");
 
 /***/ }),
 
@@ -286,17 +286,14 @@ let StopwatchService = class StopwatchService {
         this.http = http;
         this.baseUrl = '/';
     }
-    getSeq() {
-        return this.http.get(this.baseUrl + 'Seq');
-    }
     getAllTimes() {
         return this.http.get(this.baseUrl + 'Stopwatch');
     }
     addTime(time) {
         return this.http.post(this.baseUrl + 'Stopwatch/', time);
     }
-    deleteTime(id) {
-        return this.http.delete(this.baseUrl + 'Stopwatch/' + id);
+    deleteTime(time) {
+        return this.http.delete(this.baseUrl + 'Stopwatch/' + time.id);
     }
     deleteAllTimes() {
         return this.http.delete(this.baseUrl + 'Stopwatch/');
@@ -463,7 +460,7 @@ let MainPageComponent = class MainPageComponent {
         this.service.getAllTimes().subscribe((data) => {
             this.allTimes = data;
             this.allTimes.sort((a, b) => { return a.value - b.value; });
-            this.allTimes.forEach((element) => { element.value = this.calcRealTime(element.value); });
+            this.allTimes.forEach((element) => { element.displayValue = this.calcRealTime(element.value); });
         });
     }
     startTimer() {
@@ -482,11 +479,12 @@ let MainPageComponent = class MainPageComponent {
         }
     }
     saveTime() {
+        this.newTime = new _Models_Time__WEBPACK_IMPORTED_MODULE_3__["Time"]();
         this.newTime.value = this.counter;
-        this.service.getSeq().subscribe((seq) => {
-            this.newTime.id = Number(seq);
-            this.service.addTime(this.newTime).subscribe(() => { this.refreshTimes(); });
-        });
+        this.service.addTime(this.newTime).subscribe((data) => { this.updateId(data); });
+        this.newTime.displayValue = this.calcRealTime(this.newTime.value);
+        this.allTimes.push({ "id": this.newTime.value, "value": this.newTime.value, "displayValue": this.newTime.displayValue });
+        this.allTimes.sort((a, b) => { return a.value - b.value; });
     }
     calcRealTime(counter) {
         this.milliseconds = Math.floor((counter / 10) % 100);
@@ -497,8 +495,20 @@ let MainPageComponent = class MainPageComponent {
         this.minutes = (this.minutes < 10) ? "0" + this.minutes : this.minutes;
         return this.minutes + " : " + this.seconds + " . " + this.milliseconds;
     }
-    removeTime(id) {
-        this.service.deleteTime(id).subscribe(() => { this.refreshTimes(); });
+    removeTime(time) {
+        this.service.deleteTime(time).subscribe();
+        for (let i = 0; i < this.allTimes.length; i++) {
+            if (this.allTimes[i].id === time.id) {
+                this.allTimes.splice(i, 1);
+            }
+        }
+    }
+    updateId(time) {
+        this.allTimes.forEach((element) => {
+            if (element.value === time.value) {
+                element.id = time.id;
+            }
+        });
     }
     resetTimer() {
         this.isRunning = false;
@@ -510,7 +520,7 @@ let MainPageComponent = class MainPageComponent {
         this.displayTime = "00 : 00 . 00";
         this.allTimes = [];
         clearInterval(this.timerInterval);
-        this.service.deleteAllTimes().subscribe(() => { this.refreshTimes(); });
+        this.service.deleteAllTimes().subscribe();
     }
 };
 MainPageComponent.ctorParameters = () => [
