@@ -1,4 +1,4 @@
-# Stopwach
+# Stopwach (i know, i forgot the 't'..)
 Stopwatch for shield
 
 # Lets get started!
