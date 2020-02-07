@@ -1,32 +1,42 @@
 package com.example.demo.DAO;
 
 import com.example.demo.Entities.Time;
+import com.example.demo.Repository.StopwatchRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @Repository
 public class StopwatchDao {
     private static Map<Integer, Time> times;
-    public static Integer popo = 5;
 
     static {
         times = new HashMap<Integer, Time>();
     }
 
-    public Collection<Time> getAllTimes(){
-        return this.times.values();
+    @Autowired
+    private StopwatchRepository stopwatchRepository;
+
+    public Iterable<Time> getAllTimes(){
+        return stopwatchRepository.findAll();
     }
 
     public Time addTime(Time time){
-        return this.times.put(time.getId(), time);
+        return stopwatchRepository.save(time);
     }
 
-    public Time deleteTime(int id) { return this.times.remove(id); }
+    public void deleteTime(int id) {
+        Time time = new Time();
 
-    public int getSeq() { return popo++; }
+        if(stopwatchRepository.findById(id).isPresent()){
+            time = stopwatchRepository.findById(id).get();
+            stopwatchRepository.delete(time);
+        }
+    }
 
-    public void deleteAllTimes() { times = new HashMap<Integer, Time>(); }
+    public void deleteAllTimes() {
+        stopwatchRepository.deleteAll();
+    }
 }

@@ -36,7 +36,7 @@ export class MainPageComponent implements OnDestroy, OnInit {
        this.service.getAllTimes().subscribe((data) => {
           this.allTimes = data;
           this.allTimes.sort((a, b) => { return a.value - b.value});
-          this.allTimes.forEach((element) => { element.value = this.calcRealTime(element.value)});
+          this.allTimes.forEach((element) => { element.displayValue = this.calcRealTime(element.value)});
        });
     }
 
@@ -56,11 +56,12 @@ export class MainPageComponent implements OnDestroy, OnInit {
     }
 
     saveTime(){
+      this.newTime = new Time();
       this.newTime.value = this.counter;
-      this.service.getSeq().subscribe((seq) => {
-                this.newTime.id = Number(seq);
-                this.service.addTime(this.newTime).subscribe(() => { this.refreshTimes(); });
-      });
+      this.service.addTime(this.newTime).subscribe((data) => { this.updateId(data); });
+      this.newTime.displayValue = this.calcRealTime(this.newTime.value);
+      this.allTimes.push({"id": this.newTime.value, "value": this.newTime.value, "displayValue": this.newTime.displayValue});
+      this.allTimes.sort((a, b) => { return a.value - b.value});
     }
 
     calcRealTime(counter){
@@ -76,8 +77,21 @@ export class MainPageComponent implements OnDestroy, OnInit {
       return this.minutes + " : " + this.seconds + " . " + this.milliseconds;
     }
 
-    removeTime(id){
-      this.service.deleteTime(id).subscribe(() => { this.refreshTimes(); });
+    removeTime(time){
+      this.service.deleteTime(time).subscribe();
+      for (let i = 0; i < this.allTimes.length; i++){
+          if(this.allTimes[i].id === time.id){
+            this.allTimes.splice(i,1);
+          }
+      }
+    }
+
+    updateId(time){
+        this.allTimes.forEach((element) => {
+            if(element.value === time.value){
+                element.id = time.id;
+            }
+        });
     }
 
     resetTimer() {
@@ -90,6 +104,6 @@ export class MainPageComponent implements OnDestroy, OnInit {
       this.displayTime    = "00 : 00 . 00";
       this.allTimes       = [];
       clearInterval(this.timerInterval);
-      this.service.deleteAllTimes().subscribe(() => { this.refreshTimes(); });
+      this.service.deleteAllTimes().subscribe();
     }
 }

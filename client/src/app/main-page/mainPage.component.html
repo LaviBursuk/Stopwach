@@ -8,8 +8,8 @@
   <div class="timeList">
     <ul>
       <li *ngFor="let time of allTimes">
-        {{time.value}}
-        <button class="removeTimeButton" (click)="removeTime(time.id)">REMOVE</button>
+        {{time.displayValue}}
+        <button class="removeTimeButton" (click)="removeTime(time)">REMOVE</button>
       </li>
     </ul>
   </div>

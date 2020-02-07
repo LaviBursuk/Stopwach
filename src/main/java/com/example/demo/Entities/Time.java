@@ -1,12 +1,21 @@
 package com.example.demo.Entities;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Time {
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;
-    private long value;
+    private int value;
 
     public Time() {}
 
-    public Time(int id, long value) {
+    public Time(int id, int value) {
         this.value = value;
     }
 
@@ -16,9 +25,9 @@ public class Time {
         this.id = id;
     }
 
-    public long getValue() { return value; }
+    public int getValue() { return value; }
 
-    public void setValue(long value) {
+    public void setValue(int value) {
         this.value = value;
     }
 }

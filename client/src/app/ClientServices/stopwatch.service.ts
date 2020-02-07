@@ -9,10 +9,6 @@ export class StopwatchService {
 
   constructor(private http: HttpClient){}
 
-  public getSeq(){
-    return this.http.get(this.baseUrl + 'Seq');
-  }
-
   public getAllTimes(){
     return this.http.get(this.baseUrl + 'Stopwatch');
   }
@@ -21,8 +17,8 @@ export class StopwatchService {
         return this.http.post(this.baseUrl + 'Stopwatch/', time);
   }
 
-  public deleteTime(id){
-        return this.http.delete(this.baseUrl + 'Stopwatch/' + id);
+  public deleteTime(time){
+        return this.http.delete(this.baseUrl + 'Stopwatch/' + time.id);
     }
 
   public deleteAllTimes(){
